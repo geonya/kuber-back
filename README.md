@@ -144,3 +144,28 @@ ignoreEnvFile: process.env.NODE_ENV === 'prod',
 
 - env 파일에 정의하기
 - pakage.json script 파일에 cross-env NODE_ENV 설정하기
+- app.module.ts 에 ConfigModule 에 옵션에서 NODE_ENV 조건에 따라 각각의 .env.dev 혹은 .env.test 등에 env 파일을 설정할 수 있음
+
+### 2.6 Validating ConfigService
+
+- https://www.npmjs.com/package/joi
+- JavaScript용 가장 강력한 스키마 설명 언어 및 데이터 유효성 검사기.
+
+```
+npm i joi && npm i -D @types/joi
+
+import * as Joi from "joi"
+```
+
+- 환경변수의 유효성을 검사할 수 있음
+
+```js
+    validationSchema: Joi.object({
+        NODE_ENV: Joi.string().valid('dev', 'prod').required(),
+        DB_HOST: Joi.string().required(),
+        DB_PORT: Joi.string().required(),
+        DB_USERNAME: Joi.string().required(),
+        DB_PASSWORD: Joi.string().required(),
+        DB_DATABASE: Joi.string().required(),
+      }),
+```
