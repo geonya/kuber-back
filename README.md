@@ -131,3 +131,16 @@ npm i cross-env
    "start:dev": "cross-env ENV=dev && nest start --watch",
 
 ```
+
+- cross-env 를 이용해 개발 환경 모드를 설정할 수 있음
+
+### 2.5 Configuring ConfigService
+
+- 배포시 env 파일 모두 무시하기
+
+```
+ignoreEnvFile: process.env.NODE_ENV === 'prod',
+```
+
+- env 파일에 정의하기
+- pakage.json script 파일에 cross-env NODE_ENV 설정하기
