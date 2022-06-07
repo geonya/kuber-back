@@ -45,3 +45,70 @@ export class RestaurantResolver {
 - 자동으로 schema.gql 파일이 만들어진다
 - autoSchemaFile:true 로 설정하면 파일이 만들어지는대신 메모리에 저장됨
 - 타입스크립트식 표현을 이용해서 graphql 스키마를 손쉽게 쓸 수 있는 것
+
+- Args 등을 class 로 정리하여 모듈화하기 위해 DTO 방식을 이용한다.
+
+- class validator 와 class transform
+
+```
+npm i class-validator class-transformer
+```
+
+```js
+app.useGlobalPipes(new ValidationPipe());
+```
+
+```ts
+@ArgsType()
+export class CreateRestaurantDto {
+  @Field((type) => String)
+  @IsString()
+  @Length(2, 10)
+  name: string;
+
+  @Field((type) => Boolean)
+  @IsBoolean()
+  isVegan: boolean;
+
+  @Field((type) => String)
+  @IsString()
+  address: string;
+
+  @Field((type) => String)
+  @IsString()
+  ownerName: string;
+}
+```
+
+- 데코레이터들을 중첩하여 필드마다 검증이 가능하다.
+
+### 2.0 TypeORM
+
+- postgres setup
+  - brew intstall postgres
+  - brew install --cask postico
+
+TypeORM is an ORM that can run in NodeJS, Browser, Cordova, PhoneGap, Ionic, React Native, NativeScript, Expo, and Electron platforms and can be used with TypeScript and JavaScript (ES5, ES6, ES7, ES8). Its goal is to always support the latest JavaScript features and provide additional features that help you to develop any kind of application that uses databases - from small applications with a few tables to large scale enterprise applications with multiple databases.
+
+- ORM을 쓰면 SQL 문을 쓰는 대신에 코드를 써서 상호작용할 수 있음
+- Typescript 코드를 작성하면 TypeORM이 데이터베이스와 통신함
+
+```
+npm install --save @nestjs/typeorm typeorm mysql2
+```
+
+- import `TypeOrmModule`
+- data source options : https://typeorm.io/data-source
+
+```ts
+TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'geony',
+      password: '1234',
+      database: 'kuber',
+      logging: true,
+      synchronize: true,
+    }),
+```
