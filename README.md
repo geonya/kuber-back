@@ -93,6 +93,9 @@ TypeORM is an ORM that can run in NodeJS, Browser, Cordova, PhoneGap, Ionic, Rea
 - ORM을 쓰면 SQL 문을 쓰는 대신에 코드를 써서 상호작용할 수 있음
 - Typescript 코드를 작성하면 TypeORM이 데이터베이스와 통신함
 
+- NestJS Database Setup
+- https://docs.nestjs.com/techniques/database
+
 ```
 npm install --save @nestjs/typeorm typeorm mysql2
 ```
@@ -111,4 +114,20 @@ TypeOrmModule.forRoot({
       logging: true,
       synchronize: true,
     }),
+```
+
+### 2.4 ConfigService
+
+https://docs.nestjs.com/techniques/configuration
+
+- dotenv 와 같은 방식
+- module 중에서 가장 top-level 에서 사용해야함
+
+```
+npm i cross-env
+```
+
+```
+   "start:dev": "cross-env ENV=dev && nest start --watch",
+
 ```
