@@ -15,7 +15,6 @@ export class UsersService {
     password,
     role,
   }: CreateAccountInput): Promise<{ ok: boolean; error?: string }> {
-    // check new user
     try {
       const existingUser = await this.users.findOne({ where: { email } });
       if (existingUser) {
