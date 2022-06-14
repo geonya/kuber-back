@@ -10,19 +10,20 @@ export class UsersService {
     @InjectRepository(User) private readonly users: Repository<User>,
   ) {}
 
-  async createAccount({ email, password, role }: CreateAccountInput) {
+  async createAccount({
+    email,
+    password,
+    role,
+  }: CreateAccountInput): Promise<string | undefined> {
     // check new user
     try {
       const existingUser = await this.users.findOne({ where: { email } });
       if (existingUser) {
-        // make error
-        return;
+        return 'user exists';
       }
       await this.users.save(this.users.create({ email, password, role }));
-      return true;
     } catch (err) {
-      // make error
-      return;
+      return "couldn't create account";
     }
   }
 }
