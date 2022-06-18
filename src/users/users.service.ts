@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Global, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAccountInput } from './dtos/create-account.dto';
@@ -62,6 +62,11 @@ export class UsersService {
         error,
       };
     }
-    // make a JWT give it to the user
+  }
+
+  async findMyId(id: number): Promise<User> {
+    return this.users.findOne({
+      where: { id },
+    });
   }
 }
