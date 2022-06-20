@@ -71,7 +71,19 @@ export class UsersService {
     });
   }
 
-  async editProfile(userId: number, { email, password }: EditProfileInput) {
-    return this.users.update(userId, { email, password });
+  async editProfile(
+    userId: number,
+    { email, password }: EditProfileInput,
+  ): Promise<User> {
+    const user = await this.users.findOne({ where: { id: userId } });
+    if (email) {
+      user.email = email;
+    }
+    if (password) {
+      user.password = password;
+    }
+    return this.users.save(user);
+    // update를 할 경우 @BeforeUpdate Hook 데코레이터를 사용하지 못함 (왜냐하면 update method 는 단순히 query만 보낼 뿐 entity를 직접 적용하지 않기 때문)
+    // entity 파일에 BeforeUpdate 를 사용해야 password hashing 을 쉽게 적용할 수 있음
   }
 }
