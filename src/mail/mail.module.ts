@@ -4,7 +4,7 @@ import { MailModuleOptions } from 'src/mail/mail.interfaces';
 import { MailService } from 'src/mail/mail.service';
 
 @Module({})
-@Global() // 전역적으로 사용 가능
+@Global()
 export class MailModule {
   static forRoot(options: MailModuleOptions): DynamicModule {
     return {
