@@ -12,6 +12,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from 'src/jwt/jwt.service';
 import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
 import { Verification } from './entities/verification.entity';
+import { UserProfileOutput } from 'src/users/dtos/user-profile.dto';
+import { VerifyEmailOutput } from 'src/users/dtos/verify-email.dto';
 
 @Injectable()
 export class UsersService {
@@ -28,7 +30,9 @@ export class UsersService {
     role,
   }: CreateAccountInput): Promise<CreateAccountOutput> {
     try {
-      const existingUser = await this.users.findOne({ where: { email } });
+      const existingUser = await this.users.findOne({
+        where: { email },
+      });
       if (existingUser) {
         return { ok: false, error: 'user exists.' };
       }
@@ -47,7 +51,10 @@ export class UsersService {
   }
   async login({ email, password }: LoginInput): Promise<LoginOutput> {
     try {
-      const user = await this.users.findOne({ where: { email } });
+      const user = await this.users.findOne({
+        where: { email },
+        select: ['id', 'password'],
+      });
       if (!user) {
         return {
           ok: false,
@@ -74,25 +81,72 @@ export class UsersService {
     }
   }
 
-  async findMyId(id: number): Promise<User> {
-    return this.users.findOne({
-      where: { id },
-    });
+  async findById(id: number): Promise<UserProfileOutput> {
+    try {
+      const user = await this.users.findOne({
+        where: { id },
+      });
+      if (user) {
+        return {
+          ok: true,
+          user,
+        };
+      }
+    } catch (error) {
+      return {
+        ok: false,
+        error: 'User not found',
+      };
+    }
   }
 
   async editProfile(
     userId: number,
     { email, password }: EditProfileInput,
-  ): Promise<User> {
-    const user = await this.users.findOne({ where: { id: userId } });
-    if (email) {
-      user.email = email;
+  ): Promise<EditProfileOutput> {
+    try {
+      const user = await this.users.findOne({ where: { id: userId } });
+      if (email) {
+        user.email = email;
+        user.verified = false;
+        await this.verification.save(this.verification.create({ user }));
+      }
+      if (password) {
+        user.password = password;
+      }
+      await this.users.save(user);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        ok: false,
+        error: 'Could not update profile.',
+      };
     }
-    if (password) {
-      user.password = password;
+  }
+
+  async verifyEmail(code: string): Promise<VerifyEmailOutput> {
+    try {
+      const verification = await this.verification.findOne({
+        where: { code },
+        relations: ['user'],
+      });
+      if (verification) {
+        verification.user.verified = true;
+        this.users.save(verification.user);
+        return {
+          ok: true,
+        };
+      }
+      throw new Error();
+    } catch (error) {
+      console.error(error);
+      return {
+        ok: false,
+        error,
+      };
     }
-    return this.users.save(user);
-    // update를 할 경우 @BeforeUpdate Hook 데코레이터를 사용하지 못함 (왜냐하면 update method 는 단순히 query만 보낼 뿐 entity를 직접 적용하지 않기 때문)
-    // entity 파일에 BeforeUpdate 를 사용해야 password hashing 을 쉽게 적용할 수 있음
   }
 }
