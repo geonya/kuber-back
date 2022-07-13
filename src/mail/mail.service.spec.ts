@@ -1,13 +1,13 @@
 import { Test } from '@nestjs/testing';
 import { CONFIG_OPTIONS } from 'src/common/common.constants';
 import { MailService } from 'src/mail/mail.service';
+import * as FormData from 'form-data';
+import got from 'got';
 
-jest.mock('got', () => {});
-jest.mock('form-data', () => {
-  return {
-    append: jest.fn(),
-  };
-});
+jest.mock('got');
+jest.mock('form-data');
+
+const TEST_DOMAIN = 'test-domain';
 
 describe('MailService', () => {
   let service: MailService;
@@ -19,7 +19,7 @@ describe('MailService', () => {
           provide: CONFIG_OPTIONS,
           useValue: {
             apiKey: 'test-apiKey',
-            domain: 'test-domain',
+            domain: TEST_DOMAIN,
             fromEmail: 'test-fromEmail',
           },
         },
@@ -31,7 +31,6 @@ describe('MailService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
-  it.todo('send email');
   describe('sendVerificationEmail', () => {
     it('should call sendEmail', () => {
       const sendVerificationEmailArgs = {
@@ -39,7 +38,7 @@ describe('MailService', () => {
         code: 'code',
         to: 'to@to.to',
       };
-      jest.spyOn(service, 'sendEmail').mockImplementation(async () => {});
+      jest.spyOn(service, 'sendEmail').mockImplementation(async () => true);
       service.sendVerificationEmail(
         sendVerificationEmailArgs.email,
         sendVerificationEmailArgs.code,
@@ -55,6 +54,26 @@ describe('MailService', () => {
         ],
         sendVerificationEmailArgs.to,
       );
+    });
+  });
+  describe('sendEmail', () => {
+    it('sends email', async () => {
+      const ok = await service.sendEmail('', '', [], '');
+      const formSpy = jest.spyOn(FormData.prototype, 'append');
+      expect(formSpy).toHaveBeenCalled();
+      expect(got.post).toHaveBeenCalledTimes(1);
+      expect(got.post).toHaveBeenCalledWith(
+        `https://api.mailgun.net/v3/${TEST_DOMAIN}/messages`,
+        expect.any(Object),
+      );
+      expect(ok).toEqual(true);
+    });
+    it('should fail on exception', async () => {
+      jest.spyOn(got, 'post').mockImplementation(() => {
+        throw new Error();
+      });
+      const ok = await service.sendEmail('', '', [], '');
+      expect(ok).toEqual(false);
     });
   });
 });
