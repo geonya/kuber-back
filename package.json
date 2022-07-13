@@ -85,9 +85,7 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
+    "collectCoverageFrom": ["**/*.service.ts"],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "coveragePathIgnorePatterns": [
