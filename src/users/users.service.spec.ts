@@ -124,7 +124,6 @@ describe('UserService', () => {
     it('should fail if user does not exist', async () => {
       usersRepository.findOne.mockResolvedValue(null);
       const result = await service.login(loginArgs);
-
       expect(usersRepository.findOne).toHaveBeenCalledTimes(1);
       expect(usersRepository.findOne).toHaveBeenCalledWith(expect.any(Object));
       expect(result).toEqual({
@@ -226,9 +225,13 @@ describe('UserService', () => {
       verificationRepository.save.mockResolvedValue(newVerification);
 
       await service.editProfile(editProfileArgs.userId, editProfileArgs.input);
-      expect(usersRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(usersRepository.findOne).toHaveBeenCalledTimes(2);
       expect(usersRepository.findOne).toHaveBeenCalledWith({
         where: { id: editProfileArgs.userId },
+      });
+      expect(verificationRepository.delete).toHaveBeenCalledTimes(1);
+      expect(verificationRepository.delete).toHaveBeenCalledWith({
+        user: { id: editProfileArgs.userId },
       });
       expect(verificationRepository.create).toHaveBeenCalledTimes(1);
       expect(verificationRepository.create).toHaveBeenCalledWith({
