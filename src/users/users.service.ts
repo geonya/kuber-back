@@ -115,8 +115,15 @@ export class UsersService {
           error: 'User not found',
         };
       if (email) {
+        const existingUser = await this.users.findOne({ where: { email } });
+        if (existingUser)
+          return {
+            ok: false,
+            error: 'Email is already existed',
+          };
         user.email = email;
         user.verified = false;
+        await this.verification.delete({ user: { id: userId } });
         const verification = await this.verification.save(
           this.verification.create({ user }),
         );
@@ -134,6 +141,7 @@ export class UsersService {
         ok: true,
       };
     } catch (error) {
+      console.error(error);
       return {
         ok: false,
         error: 'Could not update profile.',
