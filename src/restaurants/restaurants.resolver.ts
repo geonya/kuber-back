@@ -11,13 +11,13 @@ import { RestaurantService } from './restaurants.service';
 @Resolver((of) => Restaurant)
 export class RestaurantResolver {
   constructor(private readonly restaurantService: RestaurantService) {}
-  @Query((returns) => [Restaurant])
+
   @Mutation((returns) => CreateRestaurantOutput)
   async createRestaurant(
     @AuthUser() authUser: User,
     @Args('input') createRestaurantInput: CreateRestaurantInput,
   ): Promise<CreateRestaurantOutput> {
-    return await this.restaurantService.createRestaurant(
+    return this.restaurantService.createRestaurant(
       authUser,
       createRestaurantInput,
     );

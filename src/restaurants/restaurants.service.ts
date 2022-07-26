@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/restaurants/entities/category.entity';
-import { CreateAccountOutput } from 'src/users/dtos/create-account.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
-import { CreateRestaurantInput } from './dtos/create-restaurant.dto';
+import {
+  CreateRestaurantInput,
+  CreateRestaurantOutput,
+} from './dtos/create-restaurant.dto';
 import { Restaurant } from './entities/restaurant.entity';
 
 @Injectable()
@@ -19,16 +21,14 @@ export class RestaurantService {
   async createRestaurant(
     owner: User,
     createRestaurantInput: CreateRestaurantInput,
-  ): Promise<CreateAccountOutput> {
+  ): Promise<CreateRestaurantOutput> {
     try {
       const newRestaurant = this.restaurants.create(createRestaurantInput);
       newRestaurant.owner = owner;
-
       const categoryName = createRestaurantInput.categoryName
         .trim()
         .toLocaleLowerCase();
       const categorySlug = categoryName.replace(/ /g, '-');
-
       let category = await this.categories.findOne({
         where: { slug: categorySlug },
       });
@@ -38,6 +38,7 @@ export class RestaurantService {
         );
       }
       newRestaurant.category = category;
+      await this.restaurants.save(newRestaurant);
       return {
         ok: true,
       };
