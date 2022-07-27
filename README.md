@@ -17,3 +17,13 @@
 - See Profile
 - Edit Profile
 - Verify Email
+
+## Restaurant
+
+- Edit Restaurant
+- Delete Restaurant
+- Create Restaurant
+
+- Create Dish
+- Edit Dish
+- Delete Dish

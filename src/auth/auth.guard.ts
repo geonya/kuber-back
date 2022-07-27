@@ -16,6 +16,7 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
     );
     if (!roles) {
+      // resolver is public
       return true;
     }
     const gqlContext = GqlExecutionContext.create(context).getContext();
