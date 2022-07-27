@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EditRestaurantInput } from 'src/restaurants/dtos/edit-restaurant.dto';
 import { Category } from 'src/restaurants/entities/category.entity';
+import { EditProfileOutput } from 'src/users/dtos/edit-profile.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import {
@@ -49,5 +51,12 @@ export class RestaurantService {
         error: 'Could not create restuarant',
       };
     }
+  }
+
+  async editRestaurant(
+    owner: User,
+    editRestaurantInput: EditRestaurantInput,
+  ): Promise<EditProfileOutput> {
+    return { ok: true };
   }
 }
