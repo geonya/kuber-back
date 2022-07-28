@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EditRestaurantInput } from 'src/restaurants/dtos/edit-restaurant.dto';
 import { Category } from 'src/restaurants/entities/category.entity';
+import { CategoryRepository } from 'src/restaurants/repositories/category.repository';
 import { EditProfileOutput } from 'src/users/dtos/edit-profile.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -16,8 +17,8 @@ export class RestaurantService {
   constructor(
     @InjectRepository(Restaurant)
     private readonly restaurants: Repository<Restaurant>,
-    @InjectRepository(Category)
-    private readonly categories: Repository<Category>,
+
+    private readonly categories: CategoryRepository,
   ) {}
 
   async getOrCreateCategory(name: string): Promise<Category> {
