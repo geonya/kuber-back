@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AllCategoriesOutput } from 'src/restaurants/dtos/all-categories.dto';
 import {
+  CategoryInput,
+  CategoryOutput,
+} from 'src/restaurants/dtos/category.dto';
+import {
   DeleteRestaurantInput,
   DeleteRestaurantOutput,
 } from 'src/restaurants/dtos/delete-restaurant.dto';
@@ -130,6 +134,7 @@ export class RestaurantService {
         categories,
       };
     } catch (error) {
+      console.error(error);
       return {
         ok: false,
         error: 'Could not load categories',
@@ -145,5 +150,46 @@ export class RestaurantService {
         },
       },
     });
+  }
+
+  async findCategoryBySlug({
+    slug,
+    page,
+  }: CategoryInput): Promise<CategoryOutput> {
+    try {
+      const category = await this.categories.findOne({
+        where: {
+          slug,
+        },
+      });
+      if (!category) {
+        return {
+          ok: false,
+          error: 'Not Found Category',
+        };
+      }
+      const restaurants = await this.restaurants.find({
+        where: {
+          category: {
+            id: category.id,
+          },
+        },
+        take: 5,
+        skip: (page - 1) * 5,
+      });
+      category.restaurants = restaurants;
+      const totalResults = await this.countRestaurants(category);
+      return {
+        ok: true,
+        category,
+        totalPages: Math.ceil(totalResults / 5),
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        ok: false,
+        error: 'Could not load category',
+      };
+    }
   }
 }

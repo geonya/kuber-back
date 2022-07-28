@@ -96,6 +96,7 @@ export class UsersService {
         user,
       };
     } catch (error) {
+      console.error(error);
       return {
         ok: false,
         error: 'User not found',
