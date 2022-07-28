@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AllCategoriesOutput } from 'src/restaurants/dtos/all-categories.dto';
+import {
+  DeleteRestaurantInput,
+  DeleteRestaurantOutput,
+} from 'src/restaurants/dtos/delete-restaurant.dto';
 import { EditRestaurantInput } from 'src/restaurants/dtos/edit-restaurant.dto';
 import { Category } from 'src/restaurants/entities/category.entity';
 import { CategoryRepository } from 'src/restaurants/repositories/category.repository';
@@ -78,12 +83,57 @@ export class RestaurantService {
           ...(category && { category }),
         },
       ]);
+      return { ok: true };
     } catch (error) {
       return {
         ok: false,
         error,
       };
     }
-    return { ok: true };
+  }
+
+  async deleteRestaurant(
+    owner: User,
+    deleteRestaurantInput: DeleteRestaurantInput,
+  ): Promise<DeleteRestaurantOutput> {
+    try {
+      const restaurant = await this.restaurants.findOne({
+        where: { id: deleteRestaurantInput.restaurantId },
+      });
+      if (!restaurant) {
+        return {
+          ok: false,
+          error: 'Restaurant Not Found',
+        };
+      }
+      if (owner.id !== restaurant.ownerId) {
+        return {
+          ok: false,
+          error: 'Not Authorized because you are not owner',
+        };
+      }
+      await this.restaurants.delete(deleteRestaurantInput.restaurantId);
+      return { ok: true };
+    } catch (error) {
+      return {
+        ok: false,
+        error,
+      };
+    }
+  }
+
+  async allCategories(): Promise<AllCategoriesOutput> {
+    try {
+      const categories = await this.categories.find({});
+      return {
+        ok: true,
+        categories,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error: 'Could not load categories',
+      };
+    }
   }
 }
