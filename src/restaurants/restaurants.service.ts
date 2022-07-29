@@ -1,3 +1,5 @@
+// TODO : Pagination 을 Repository 로 만들기
+
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AllCategoriesOutput } from 'src/restaurants/dtos/all-categories.dto';
@@ -26,7 +28,7 @@ import { Category } from 'src/restaurants/entities/category.entity';
 import { CategoryRepository } from 'src/restaurants/repositories/category.repository';
 import { EditProfileOutput } from 'src/users/dtos/edit-profile.dto';
 import { User } from 'src/users/entities/user.entity';
-import { Like, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
@@ -191,7 +193,12 @@ export class RestaurantService {
   }: SearchRestaurantInput): Promise<SearchRestaurantOutput> {
     try {
       const [restaurants, totalResults] = await this.restaurants.findAndCount({
-        where: { name: Like(`%${query}%`) },
+        where: { name: ILike(`%${query}%`) },
+        // Like : Case Sensitive name: Like(`%${query}%`)
+        // ILike : Insenitive name: ILike(`%${query}%`)
+        // sql : name: Raw((name) => `${name} ILike '%${query}%'`),
+        skip: (page - 1) * 5,
+        take: 5,
       });
       if (!restaurants) {
         return {
@@ -203,6 +210,7 @@ export class RestaurantService {
         ok: true,
         restaurants,
         totalResults,
+        totalPages: Math.ceil(totalResults / 5),
       };
     } catch (error) {
       console.error(error);
