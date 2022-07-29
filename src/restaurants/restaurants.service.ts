@@ -11,14 +11,22 @@ import {
 } from 'src/restaurants/dtos/delete-restaurant.dto';
 import { EditRestaurantInput } from 'src/restaurants/dtos/edit-restaurant.dto';
 import {
+  RestaurantInput,
+  RestaurantOutput,
+} from 'src/restaurants/dtos/restaurant.dto';
+import {
   RestaurantsInput,
   RestaurantsOutput,
 } from 'src/restaurants/dtos/restaurants.dto';
+import {
+  SearchRestaurantInput,
+  SearchRestaurantOutput,
+} from 'src/restaurants/dtos/search-restaurant.dto';
 import { Category } from 'src/restaurants/entities/category.entity';
 import { CategoryRepository } from 'src/restaurants/repositories/category.repository';
 import { EditProfileOutput } from 'src/users/dtos/edit-profile.dto';
 import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
@@ -149,6 +157,58 @@ export class RestaurantService {
       return {
         ok: false,
         error: 'Could not load restaurants',
+      };
+    }
+  }
+
+  async findRestaurantById({
+    restaurantId,
+  }: RestaurantInput): Promise<RestaurantOutput> {
+    try {
+      const restaurant = await this.restaurants.findOne({
+        where: {
+          id: restaurantId,
+        },
+      });
+      if (!restaurant) {
+        return {
+          ok: false,
+          error: 'Not Found Restaurant',
+        };
+      }
+      return { ok: true, restaurant };
+    } catch (error) {
+      console.error(error);
+      return {
+        ok: false,
+        error: 'Could not find restaurant',
+      };
+    }
+  }
+  async searchRestaurantByName({
+    query,
+    page,
+  }: SearchRestaurantInput): Promise<SearchRestaurantOutput> {
+    try {
+      const [restaurants, totalResults] = await this.restaurants.findAndCount({
+        where: { name: Like(`%${query}%`) },
+      });
+      if (!restaurants) {
+        return {
+          ok: false,
+          error: 'Not Found restaurants',
+        };
+      }
+      return {
+        ok: true,
+        restaurants,
+        totalResults,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        ok: false,
+        error: 'Could not search restaurant',
       };
     }
   }
