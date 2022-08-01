@@ -317,8 +317,9 @@ export class RestaurantService {
           error: 'Not authorized',
         };
       }
-      const newDish = this.dishes.create(createDishInput);
+      const newDish = this.dishes.create({ ...createDishInput, restaurant });
       await this.dishes.save(newDish);
+      console.log(newDish);
       return {
         ok: true,
       };

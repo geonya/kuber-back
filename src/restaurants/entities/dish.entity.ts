@@ -13,8 +13,8 @@ class DishOption {
   @Field((type) => [String], { nullable: true })
   choices?: string[];
 
-  @Field((type) => Number)
-  extra: number;
+  @Field((type) => Number, { nullable: true })
+  extra?: number;
 }
 
 @InputType('DishInputType', { isAbstract: true })
@@ -24,7 +24,7 @@ export class Dish extends CoreEntity {
   @Field((type) => String)
   @Column()
   @IsString()
-  @Length(5)
+  @Length(2)
   name: string;
 
   @Field((type) => Number)
@@ -34,12 +34,11 @@ export class Dish extends CoreEntity {
 
   @Field((type) => String, { nullable: true })
   @Column({ nullable: true })
-  @IsString()
   photo: string;
 
   @Field((type) => String)
   @Column()
-  @Length(5, 140)
+  @Length(2, 140)
   description: string;
 
   @Field((type) => Restaurant, { nullable: true })
