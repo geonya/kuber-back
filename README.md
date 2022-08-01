@@ -23,6 +23,7 @@
 - Edit Restaurant
 - Delete Restaurant
 - Create Restaurant
+- Search Restaurant
 
 - Create Dish
 - Edit Dish
