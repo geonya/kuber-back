@@ -15,6 +15,10 @@ import {
   CategoryOutput,
 } from 'src/restaurants/dtos/category.dto';
 import {
+  CreateDishInput,
+  CreateDishOutput,
+} from 'src/restaurants/dtos/create-dish.dto';
+import {
   DeleteRestaurantInput,
   DeleteRestaurantOutput,
 } from 'src/restaurants/dtos/delete-restaurant.dto';
@@ -35,6 +39,7 @@ import {
   SearchRestaurantOutput,
 } from 'src/restaurants/dtos/search-restaurant.dto';
 import { Category } from 'src/restaurants/entities/category.entity';
+import { Dish } from 'src/restaurants/entities/dish.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   CreateRestaurantInput,
@@ -121,5 +126,19 @@ export class CategoryResolver {
     @Args('input') categoryInput: CategoryInput,
   ): Promise<CategoryOutput> {
     return this.restaurantService.findCategoryBySlug(categoryInput);
+  }
+}
+
+@Resolver((of) => Dish)
+export class DishResolver {
+  constructor(private readonly restaurantService: RestaurantService) {}
+
+  @Mutation((type) => CreateDishOutput)
+  @Role(['Owner'])
+  createDish(
+    @AuthUser() owner: User,
+    @Args('input') createDishInput: CreateDishInput,
+  ): Promise<CreateDishOutput> {
+    return this.restaurantService.createdish(owner, createDishInput);
   }
 }

@@ -4,6 +4,19 @@ import { CoreEntity } from 'src/common/entities/core.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
+@InputType('DishOptionalInputType', { isAbstract: true })
+@ObjectType()
+class DishOption {
+  @Field((type) => String)
+  name: string;
+
+  @Field((type) => [String], { nullable: true })
+  choices?: string[];
+
+  @Field((type) => Number)
+  extra: number;
+}
+
 @InputType('DishInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
@@ -19,8 +32,8 @@ export class Dish extends CoreEntity {
   @IsNumber()
   price: number;
 
-  @Field((type) => String)
-  @Column()
+  @Field((type) => String, { nullable: true })
+  @Column({ nullable: true })
   @IsString()
   photo: string;
 
@@ -37,4 +50,8 @@ export class Dish extends CoreEntity {
 
   @RelationId((dish: Dish) => dish.restaurant)
   restaurantId: number;
+
+  @Field((type) => [DishOption], { nullable: true })
+  @Column({ type: 'json', nullable: true })
+  options?: DishOption[];
 }
