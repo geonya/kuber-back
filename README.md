@@ -25,10 +25,8 @@
 - Create Restaurant
 - Search Restaurant
 
+### Dish
+
 - Create Dish
 - Edit Dish
 - Delete Dish
-
-## Dish
-
-- Create Dish

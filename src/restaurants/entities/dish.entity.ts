@@ -1,8 +1,18 @@
-import { Field, InputType, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { IsNumber, IsString, Length } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
+
+@InputType('DishChoiceInputType', { isAbstract: true })
+@ObjectType()
+class DishChoice {
+  @Field((type) => String)
+  name: string;
+
+  @Field((type) => Number, { nullable: true })
+  extra?: number;
+}
 
 @InputType('DishOptionalInputType', { isAbstract: true })
 @ObjectType()
@@ -10,8 +20,8 @@ class DishOption {
   @Field((type) => String)
   name: string;
 
-  @Field((type) => [String], { nullable: true })
-  choices?: string[];
+  @Field((type) => [DishChoice], { nullable: true })
+  choices?: DishChoice[];
 
   @Field((type) => Number, { nullable: true })
   extra?: number;
