@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Order } from 'src/orders/entities/order.entity';
 import { User } from './entities/user.entity';
 import { Verification } from './entities/verification.entity';
 import { UsersResolver } from './users.resolver';
