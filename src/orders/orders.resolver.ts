@@ -11,7 +11,7 @@ import { User } from 'src/users/entities/user.entity';
 
 @Resolver((of) => Order)
 export class OrderResolver {
-  constructor(private readonly ordersService: OrderService) {}
+  constructor(private readonly orderService: OrderService) {}
 
   @Mutation((returns) => CreateOrderOutput)
   @Role(['Client'])
@@ -20,8 +20,6 @@ export class OrderResolver {
     @Args('input')
     createOrderInput: CreateOrderInput,
   ): Promise<CreateOrderOutput> {
-    return {
-      ok: true,
-    };
+    return this.orderService.createOrder(customer, createOrderInput);
   }
 }
