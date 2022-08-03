@@ -80,6 +80,5 @@ describe('MailService', () => {
       const ok = await service.sendEmail('', '', [], '');
       expect(ok).toEqual(false);
     });
-    it('should success forEach', () => {});
   });
 });

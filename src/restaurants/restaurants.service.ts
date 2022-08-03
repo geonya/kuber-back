@@ -53,7 +53,8 @@ export class RestaurantService {
   constructor(
     @InjectRepository(Restaurant)
     private readonly restaurants: Repository<Restaurant>,
-    // Custom
+
+    // Custom Respository
     private readonly categories: CategoryRepository,
 
     @InjectRepository(Dish)

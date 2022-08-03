@@ -34,6 +34,9 @@
 ## Order
 
 - Create Order
+- Orders RUD
+- Orders Subscription (Owner, Customer, Delivery)
+- Payments(CRON)
 
 ## Testing
 
