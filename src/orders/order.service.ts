@@ -4,11 +4,15 @@ import {
   CreateOrderInput,
   CreateOrderOutput,
 } from 'src/orders/dtos/create-order.dto';
+import {
+  GetOrdersInput,
+  GetOrdersOutput,
+} from 'src/orders/dtos/get-orders.dto';
 import { OrderItem } from 'src/orders/entities/order-item.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { Dish } from 'src/restaurants/entities/dish.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
-import { User } from 'src/users/entities/user.entity';
+import { User, UserRole } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -92,6 +96,56 @@ export class OrderService {
       return {
         ok: false,
         error: `Could not create Order ${error}`,
+      };
+    }
+  }
+
+  async getOrders(
+    user: User,
+    { status }: GetOrdersInput,
+  ): Promise<GetOrdersOutput> {
+    try {
+      let orders: Order[] = [];
+      if (user.role === UserRole.Client) {
+        // find orders
+        orders = await this.orders.find({
+          where: {
+            customer: {
+              id: user.id,
+            },
+          },
+        });
+      } else if (user.role === UserRole.Delivery) {
+        orders = await this.orders.find({
+          where: {
+            driver: {
+              id: user.id,
+            },
+          },
+        });
+      } else if (user.role === UserRole.Owner) {
+        const restaurants = await this.restaurants.find({
+          where: {
+            owner: {
+              id: user.id,
+            },
+          },
+          relations: {
+            orders: true,
+          },
+        });
+        orders = restaurants.map((restaurant) => restaurant.orders).flat(1);
+      }
+      console.log(orders);
+      return {
+        ok: true,
+        orders,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        ok: false,
+        error: 'Could not get orders',
       };
     }
   }
