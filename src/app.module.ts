@@ -22,6 +22,7 @@ import { Category } from './restaurants/entities/category.entity';
 import { Dish } from './restaurants/entities/dish.entity';
 import { OrdersModule } from './orders/orders.module';
 import { Order } from 'src/orders/entities/order.entity';
+import { OrderItem } from 'src/orders/entities/order-item.entity';
 
 @Module({
   imports: [
@@ -52,7 +53,15 @@ import { Order } from 'src/orders/entities/order.entity';
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
       synchronize: process.env.NODE_ENV !== 'prod',
-      entities: [User, Verification, Restaurant, Category, Dish, Order],
+      entities: [
+        User,
+        Verification,
+        Restaurant,
+        Category,
+        Dish,
+        Order,
+        OrderItem,
+      ],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
