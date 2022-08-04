@@ -5,6 +5,10 @@ import {
   CreateOrderInput,
   CreateOrderOutput,
 } from 'src/orders/dtos/create-order.dto';
+import {
+  EditOrderInput,
+  EditOrderOutput,
+} from 'src/orders/dtos/edit-order.dto';
 import { GetOrderInput, GetOrderOutput } from 'src/orders/dtos/get-order.dto';
 import {
   GetOrdersInput,
@@ -44,5 +48,14 @@ export class OrderResolver {
     @Args('input') getOrderInput: GetOrderInput,
   ): Promise<GetOrderOutput> {
     return this.orderService.getOrder(user, getOrderInput);
+  }
+
+  @Mutation((returns) => EditOrderOutput)
+  @Role(['Any'])
+  async editOrder(
+    @AuthUser() user: User,
+    editOrderInput: EditOrderInput,
+  ): Promise<EditOrderOutput> {
+    return this.orderService.editOrder(user, editOrderInput);
   }
 }

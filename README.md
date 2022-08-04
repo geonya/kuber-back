@@ -33,8 +33,7 @@
 
 ## Order
 
-- Create Order
-- Orders RUD
+- Order CRUD
 - Orders Subscription (Owner, Customer, Delivery)
 - Payments(CRON)
 

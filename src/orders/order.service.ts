@@ -4,13 +4,17 @@ import {
   CreateOrderInput,
   CreateOrderOutput,
 } from 'src/orders/dtos/create-order.dto';
+import {
+  EditOrderInput,
+  EditOrderOutput,
+} from 'src/orders/dtos/edit-order.dto';
 import { GetOrderInput, GetOrderOutput } from 'src/orders/dtos/get-order.dto';
 import {
   GetOrdersInput,
   GetOrdersOutput,
 } from 'src/orders/dtos/get-orders.dto';
 import { OrderItem } from 'src/orders/entities/order-item.entity';
-import { Order } from 'src/orders/entities/order.entity';
+import { Order, OrderStatus } from 'src/orders/entities/order.entity';
 import { Dish } from 'src/restaurants/entities/dish.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { User, UserRole } from 'src/users/entities/user.entity';
@@ -155,6 +159,21 @@ export class OrderService {
     }
   }
 
+  checkUnAuthorized(user: User, order: Order) {
+    let unAuthorizedRole: UserRole | null = null;
+    if (user.role === UserRole.Client && user.id !== order.customerId) {
+      unAuthorizedRole = UserRole.Client;
+    }
+    if (user.role === UserRole.Delivery && user.id !== order.driverId) {
+      unAuthorizedRole = UserRole.Delivery;
+    }
+    if (user.role === UserRole.Owner && user.id !== order.restaurant.ownerId) {
+      unAuthorizedRole = UserRole.Owner;
+    }
+
+    return unAuthorizedRole;
+  }
+
   async getOrder(user: User, { id }: GetOrderInput): Promise<GetOrderOutput> {
     try {
       const order = await this.orders.findOne({
@@ -171,30 +190,82 @@ export class OrderService {
           error: 'Not found order',
         };
       }
-      let authorizedError: UserRole | null = null;
-      if (user.role === UserRole.Client && user.id !== order.customerId) {
-        authorizedError = UserRole.Client;
-      }
-      if (user.role === UserRole.Delivery && user.id !== order.driverId) {
-        authorizedError = UserRole.Delivery;
-      }
-      if (
-        user.role === UserRole.Owner &&
-        user.id !== order.restaurant.ownerId
-      ) {
-        authorizedError = UserRole.Owner;
-      }
-
-      if (authorizedError) {
+      const unAuthorizedRole = this.checkUnAuthorized(user, order);
+      if (unAuthorizedRole) {
         return {
           ok: false,
-          error: `${authorizedError} can't see this order`,
+          error: `${unAuthorizedRole} can't see this order`,
         };
       }
-
       return {
         ok: true,
         order,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        ok: false,
+        error,
+      };
+    }
+  }
+  async editOrder(
+    user: User,
+    { id, status }: EditOrderInput,
+  ): Promise<EditOrderOutput> {
+    try {
+      const order = await this.orders.findOne({
+        where: {
+          id,
+        },
+        relations: {
+          restaurant: true,
+        },
+      });
+      if (!order) {
+        return {
+          ok: false,
+          error: 'Not found Order',
+        };
+      }
+      const unAuthorizedRole = this.checkUnAuthorized(user, order);
+      if (unAuthorizedRole) {
+        return {
+          ok: false,
+          error: `${unAuthorizedRole} can't see this order`,
+        };
+      }
+      let canEdit = true;
+      if (user.role === UserRole.Client) {
+        canEdit = false;
+      }
+      if (user.role === UserRole.Owner) {
+        if (status !== OrderStatus.Cooking && status !== OrderStatus.Cooked) {
+          canEdit = false;
+        }
+      }
+      if (user.role === UserRole.Delivery) {
+        if (
+          status !== OrderStatus.PickedUp &&
+          status !== OrderStatus.Delivered
+        ) {
+          canEdit = false;
+        }
+      }
+      if (!canEdit) {
+        return {
+          ok: false,
+          error: 'Cant not edit this order Because of UserRole',
+        };
+      }
+      await this.orders.save([
+        {
+          id,
+          status,
+        },
+      ]);
+      return {
+        ok: true,
       };
     } catch (error) {
       console.error(error);
