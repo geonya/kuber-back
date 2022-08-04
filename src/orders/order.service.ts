@@ -4,6 +4,7 @@ import {
   CreateOrderInput,
   CreateOrderOutput,
 } from 'src/orders/dtos/create-order.dto';
+import { GetOrderInput, GetOrderOutput } from 'src/orders/dtos/get-order.dto';
 import {
   GetOrdersInput,
   GetOrdersOutput,
@@ -113,6 +114,7 @@ export class OrderService {
             customer: {
               id: user.id,
             },
+            ...(status && { status }),
           },
         });
       } else if (user.role === UserRole.Delivery) {
@@ -121,6 +123,7 @@ export class OrderService {
             driver: {
               id: user.id,
             },
+            ...(status && { status }),
           },
         });
       } else if (user.role === UserRole.Owner) {
@@ -135,8 +138,10 @@ export class OrderService {
           },
         });
         orders = restaurants.map((restaurant) => restaurant.orders).flat(1);
+        if (status) {
+          orders = orders.filter((order) => order.status === status);
+        }
       }
-      console.log(orders);
       return {
         ok: true,
         orders,
@@ -146,6 +151,56 @@ export class OrderService {
       return {
         ok: false,
         error: 'Could not get orders',
+      };
+    }
+  }
+
+  async getOrder(user: User, { id }: GetOrderInput): Promise<GetOrderOutput> {
+    try {
+      const order = await this.orders.findOne({
+        where: {
+          id,
+        },
+        relations: {
+          restaurant: true,
+        },
+      });
+      if (!order) {
+        return {
+          ok: false,
+          error: 'Not found order',
+        };
+      }
+      let authorizedError: UserRole | null = null;
+      if (user.role === UserRole.Client && user.id !== order.customerId) {
+        authorizedError = UserRole.Client;
+      }
+      if (user.role === UserRole.Delivery && user.id !== order.driverId) {
+        authorizedError = UserRole.Delivery;
+      }
+      if (
+        user.role === UserRole.Owner &&
+        user.id !== order.restaurant.ownerId
+      ) {
+        authorizedError = UserRole.Owner;
+      }
+
+      if (authorizedError) {
+        return {
+          ok: false,
+          error: `${authorizedError} can't see this order`,
+        };
+      }
+
+      return {
+        ok: true,
+        order,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        ok: false,
+        error,
       };
     }
   }
