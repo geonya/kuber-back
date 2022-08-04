@@ -39,8 +39,11 @@
 
 ## Subscription
 
-- graphql-ws
-- global pubsub
+- Orders Subscription:
+
+  - Pending Orders (subscribe : New Order, trigger : createOrder(newOrder))
+  - Order Status (Customer, Delivery, Owner) (subscribe : Order Update, trigger : Edit Order)
+  - Pending Pickup Order (Driver) (subscribe : Order Update, trigger : Edit Order)
 
 ## Testing
 

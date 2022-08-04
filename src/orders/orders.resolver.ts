@@ -67,7 +67,7 @@ export class OrderResolver {
   }
 
   @Mutation((returns) => Boolean)
-  async potatoReady(@Args('potatoId') potatoId: number) {
+  async publishPotato(@Args('potatoId') potatoId: number) {
     await this.pubsub.publish('hotPotatos', {
       readyPotato: potatoId,
     });
@@ -78,6 +78,8 @@ export class OrderResolver {
     filter: ({ readyPotato }, { potatoId }) => {
       return readyPotato === potatoId;
     },
+    resolve: ({ readyPotato }) =>
+      `Your Potato with the id ${readyPotato} is ready`,
   })
   @Role(['Any'])
   readyPotato(@Args('potatoId') potatoId: number) {
