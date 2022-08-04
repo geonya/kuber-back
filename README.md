@@ -39,7 +39,8 @@
 
 ## Subscription
 
-- resolver 의 변경 사항을 수신함
+- graphql-ws
+- global pubsub
 
 ## Testing
 
