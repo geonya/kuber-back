@@ -255,7 +255,7 @@ export class OrderService {
       if (!canEdit) {
         return {
           ok: false,
-          error: 'Cant not edit this order Because of UserRole',
+          error: 'Can not edit this order Because of UserRole',
         };
       }
       await this.orders.save([
