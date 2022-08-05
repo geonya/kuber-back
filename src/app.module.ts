@@ -21,6 +21,7 @@ import { Context } from 'apollo-server-core';
 import { CommonModule } from 'src/common/common.module';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entities/payment.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 
 const TOKEN_KEY = 'x-jwt';
 
@@ -94,6 +95,7 @@ const TOKEN_KEY = 'x-jwt';
     OrdersModule,
     CommonModule,
     PaymentsModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [],
   providers: [],

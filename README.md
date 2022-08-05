@@ -46,7 +46,9 @@
 
 ## Payment
 
-- Payments(CRON) with paddle
+- Create Payment
+- Get Payments
+- Task Scheduling (@nestjs/schedule)
 
 ## Testing
 
