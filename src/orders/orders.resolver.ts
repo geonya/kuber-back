@@ -96,7 +96,6 @@ export class OrderResolver {
       { input }: { input: OrderUpdateInput },
       { user }: { user: User },
     ) => {
-      console.log('subscription ORDER', order);
       if (
         order.driverId !== user.id &&
         order.customerId !== user.id &&

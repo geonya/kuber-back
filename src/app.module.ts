@@ -19,6 +19,8 @@ import { Order } from 'src/orders/entities/order.entity';
 import { OrderItem } from 'src/orders/entities/order-item.entity';
 import { Context } from 'apollo-server-core';
 import { CommonModule } from 'src/common/common.module';
+import { PaymentsModule } from './payments/payments.module';
+import { Payment } from './payments/entities/payment.entity';
 
 const TOKEN_KEY = 'x-jwt';
 
@@ -59,6 +61,7 @@ const TOKEN_KEY = 'x-jwt';
         Dish,
         Order,
         OrderItem,
+        Payment,
       ],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -90,6 +93,7 @@ const TOKEN_KEY = 'x-jwt';
     RestaurantsModule,
     OrdersModule,
     CommonModule,
+    PaymentsModule,
   ],
   controllers: [],
   providers: [],
