@@ -20,7 +20,11 @@ import { Dish } from 'src/restaurants/entities/dish.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { User, UserRole } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
-import { NEW_PENDING_ORDER, PUB_SUB } from '../common/common.constants';
+import {
+  NEW_COOKED_ORDER,
+  NEW_PENDING_ORDER,
+  PUB_SUB,
+} from '../common/common.constants';
 
 @Injectable()
 export class OrderService {
@@ -189,6 +193,7 @@ export class OrderService {
         },
         relations: {
           restaurant: true,
+          user: true,
         },
       });
       if (!order) {
@@ -265,12 +270,17 @@ export class OrderService {
           error: 'Can not edit this order Because of UserRole',
         };
       }
-      await this.orders.save([
-        {
-          id,
-          status,
-        },
-      ]);
+      await this.orders.save({
+        id,
+        status,
+      });
+      if (user.role === UserRole.Owner) {
+        if (status === OrderStatus.Cooked) {
+          await this.pubsub.publish(NEW_COOKED_ORDER, {
+            cookedOrders: { ...order, status },
+          });
+        }
+      }
       return {
         ok: true,
       };
