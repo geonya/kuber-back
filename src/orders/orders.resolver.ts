@@ -26,6 +26,7 @@ import { Order } from 'src/orders/entities/order.entity';
 import { OrderService } from 'src/orders/order.service';
 import { User } from 'src/users/entities/user.entity';
 import { OrderUpdateInput } from './dtos/order-update.dto';
+import { TakeOrderInput, TakeOrderOutput } from './dtos/take-order.dto';
 
 @Resolver((of) => Order)
 export class OrderResolver {
@@ -95,6 +96,7 @@ export class OrderResolver {
       { input }: { input: OrderUpdateInput },
       { user }: { user: User },
     ) => {
+      console.log('subscription ORDER', order);
       if (
         order.driverId !== user.id &&
         order.customerId !== user.id &&
@@ -108,5 +110,14 @@ export class OrderResolver {
   @Role(['Any'])
   orderUpdates(@Args('input') orderUpdateInput: OrderUpdateInput) {
     return this.pubsub.asyncIterator(NEW_ORDER_UPDATE);
+  }
+
+  @Mutation((returns) => TakeOrderOutput)
+  @Role(['Delivery'])
+  takeOrder(
+    @AuthUser() driver: User,
+    @Args('input') takeOrderInput: TakeOrderInput,
+  ): Promise<TakeOrderOutput> {
+    return this.orderService.takeOrder(driver, takeOrderInput);
   }
 }
