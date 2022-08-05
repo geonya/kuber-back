@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, Interval, SchedulerRegistry, Timeout } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { User } from '../users/entities/user.entity';
 import {
@@ -85,5 +85,23 @@ export class PaymentService {
         error,
       };
     }
+  }
+
+  // every day 00:00 excute
+  @Cron('0 0 0 * * 0-6')
+  // https://docs.nestjs.com/techniques/task-scheduling
+  async checkPromotedRestaurant() {
+    const restaurants = await this.restaurants.find({
+      where: {
+        isPromoted: true,
+        promotedUntil: LessThan(new Date()),
+      },
+    });
+    restaurants.forEach(async (restraurant) => {
+      restraurant.isPromoted = false;
+      restraurant.promotedUntil = null;
+      await this.restaurants.save(restraurant);
+    });
+    console.log(restaurants);
   }
 }
