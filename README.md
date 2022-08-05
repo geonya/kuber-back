@@ -49,6 +49,7 @@
 - Create Payment
 - Get Payments
 - Task Scheduling (@nestjs/schedule)
+- Promote Restaurant
 
 ## Testing
 
