@@ -5,6 +5,7 @@ import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import {
   NEW_COOKED_ORDER,
+  NEW_ORDER_UPDATE,
   NEW_PENDING_ORDER,
   PUB_SUB,
 } from 'src/common/common.constants';
@@ -24,6 +25,7 @@ import {
 import { Order } from 'src/orders/entities/order.entity';
 import { OrderService } from 'src/orders/order.service';
 import { User } from 'src/users/entities/user.entity';
+import { OrderUpdateInput } from './dtos/order-update.dto';
 
 @Resolver((of) => Order)
 export class OrderResolver {
@@ -85,5 +87,26 @@ export class OrderResolver {
   @Role(['Delivery'])
   cookedOrders() {
     return this.pubsub.asyncIterator(NEW_COOKED_ORDER);
+  }
+
+  @Subscription((returns) => Order, {
+    filter: (
+      { orderUpdates: order }: { orderUpdates: Order },
+      { input }: { input: OrderUpdateInput },
+      { user }: { user: User },
+    ) => {
+      if (
+        order.driverId !== user.id &&
+        order.customerId !== user.id &&
+        order.restaurant.ownerId !== user.id
+      ) {
+        return false;
+      }
+      return order.id === input.id;
+    },
+  })
+  @Role(['Any'])
+  orderUpdates(@Args('input') orderUpdateInput: OrderUpdateInput) {
+    return this.pubsub.asyncIterator(NEW_ORDER_UPDATE);
   }
 }

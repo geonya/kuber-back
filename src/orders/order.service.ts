@@ -22,6 +22,7 @@ import { User, UserRole } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import {
   NEW_COOKED_ORDER,
+  NEW_ORDER_UPDATE,
   NEW_PENDING_ORDER,
   PUB_SUB,
 } from '../common/common.constants';
@@ -191,10 +192,7 @@ export class OrderService {
         where: {
           id,
         },
-        relations: {
-          restaurant: true,
-          user: true,
-        },
+        relations: ['restaurant'],
       });
       if (!order) {
         return {
@@ -229,9 +227,6 @@ export class OrderService {
       const order = await this.orders.findOne({
         where: {
           id,
-        },
-        relations: {
-          restaurant: true,
         },
       });
       if (!order) {
@@ -274,13 +269,15 @@ export class OrderService {
         id,
         status,
       });
+      const newOrder = { ...order, status };
       if (user.role === UserRole.Owner) {
         if (status === OrderStatus.Cooked) {
           await this.pubsub.publish(NEW_COOKED_ORDER, {
-            cookedOrders: { ...order, status },
+            cookedOrders: newOrder,
           });
         }
       }
+      await this.pubsub.publish(NEW_ORDER_UPDATE, { orderUpdates: newOrder });
       return {
         ok: true,
       };
